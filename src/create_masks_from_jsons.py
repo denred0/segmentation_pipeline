@@ -41,7 +41,7 @@ def convert_json_to_masks(input_dir, output_dir, img_ext):
             labels = json.load(label_json)["shapes"]
 
         for l in labels:
-            class_index = LASER_CLASSES.index(l["label"])
+            class_index = CLASSES.index(l["label"])
             points = l["points"]
 
             if l["shape_type"] == "polygon" or l["shape_type"] == "linestrip":
