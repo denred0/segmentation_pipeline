@@ -1,6 +1,7 @@
 import torch
 
 CLASSES = ['smoke', 'unlabelled']
+PALETTE = [[0, 0, 255], [0, 0, 0]]
 
 ENCODER = "se_resnext101_32x4d"
 ARCH = "FPN"

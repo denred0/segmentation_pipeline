@@ -10,8 +10,8 @@ import shutil
 
 from tqdm import tqdm
 
-from denred0_src.classes import LASER_CLASSES, PALETTE
-from utils import get_all_files_in_folder
+from config import CLASSES, PALETTE
+from my_utils import get_all_files_in_folder
 
 
 def convert_json_to_masks(input_dir, output_dir, img_ext):
