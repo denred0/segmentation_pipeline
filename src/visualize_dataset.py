@@ -23,12 +23,9 @@ def visualize_dataset():
                              config.Y_TRAIN_DIR,
                              all_classes=config.CLASSES,
                              classes=[config.CLASSES[0]])
-
-    image, mask = dataset[4]  # get some sample
-    visualize(
-        image=image,
-        cars_mask=mask.squeeze(),
-    )
+    for i in range(3):
+        image, mask = dataset[i]  # get some sample
+        visualize(image=image, mask=mask.squeeze())
 
 
 def visualize_dataset_augmented():
@@ -47,4 +44,5 @@ def visualize_dataset_augmented():
 
 
 if __name__ == "__main__":
+    # visualize_dataset()
     visualize_dataset_augmented()
