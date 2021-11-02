@@ -79,7 +79,7 @@ def convert_json_to_masks(input_dir, output_dir, img_ext):
 
 
 if __name__ == '__main__':
-    input_dir = Path("data/create_masks_from_json/images_and_json")
+    input_dir = Path("data/create_masks_from_json/images_and_jsons")
     output_dir = Path("data/create_masks_from_json/output")
     img_ext = '.jpg'
 

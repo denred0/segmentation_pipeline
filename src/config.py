@@ -26,3 +26,7 @@ X_VALID_DIR = "data/train/val"
 Y_VALID_DIR = "data/train/valannot"
 
 WEIGHTS_SAVE_DIR = "logs"
+
+SEED = 42
+
+

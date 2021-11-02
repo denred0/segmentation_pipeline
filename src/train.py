@@ -13,6 +13,8 @@ from augmentation import get_training_augmentation, get_validation_augmentation,
 
 import config
 
+from my_utils import seed_everything
+
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
@@ -31,33 +33,21 @@ def fetch_scheduler(optimizer):
 
 
 def train():
-    CLASSES = config.CLASSES
+    seed_everything(config.SEED)
 
-    # create folder for saving weights
     experiment = config.ARCH + "_" + config.ENCODER
     exp_number = get_last_exp_number(experiment)
 
-    # weights_save_dir = Path(config.WEIGHTS_SAVE_DIR)
-    # if weights_save_dir.exists() and weights_save_dir.is_dir():
-    #     shutil.rmtree(weights_save_dir)
-    # Path(weights_save_dir).mkdir(parents=True, exist_ok=True)
-
-    # DATA_DIR = data_dict['data_dir']
     x_train_dir = config.X_TRAIN_DIR
     y_train_dir = config.Y_TRAIN_DIR
     x_valid_dir = config.X_VALID_DIR
     y_valid_dir = config.Y_VALID_DIR
 
-    # model init
-    # ENCODER = config.ENCODER
-    # ACTIVATION = config.ACTIVATION  # could be None for logits or 'softmax2d' for multiclass segmentation
-    # DEVICE = config.DEVICE
-
     # create segmentation model with pretrained encoder
     model = smp.FPN(
         encoder_name=config.ENCODER,
         encoder_weights=config.ENCODER_WEIGHTS,
-        classes=len(CLASSES),
+        classes=len(config.CLASSES),
         activation=config.ACTIVATION,
     )
 
@@ -66,33 +56,27 @@ def train():
     train_dataset = DatasetWrapper(
         x_train_dir,
         y_train_dir,
-        all_classes=CLASSES,
+        all_classes=config.CLASSES,
         augmentation=get_training_augmentation(),
         preprocessing=get_preprocessing(preprocessing_fn),
-        classes=CLASSES,
+        classes=config.CLASSES,
     )
 
     valid_dataset = DatasetWrapper(
         x_valid_dir,
         y_valid_dir,
-        all_classes=CLASSES,
+        all_classes=config.CLASSES,
         augmentation=get_validation_augmentation(),
         preprocessing=get_preprocessing(preprocessing_fn),
-        classes=CLASSES,
+        classes=config.CLASSES,
     )
 
     train_loader = DataLoader(train_dataset, batch_size=int(config.BATCH_SIZE), shuffle=True, num_workers=0)
     valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, num_workers=0)
 
     loss = smp.utils.losses.JaccardLoss()
-    metrics = [
-        smp.utils.metrics.IoU(threshold=0.4),
-    ]
-
-    optimizer = torch.optim.Adam([
-        dict(params=model.parameters(), lr=float(config.LEARNING_RATE)),
-    ])
-
+    metrics = [smp.utils.metrics.IoU(threshold=0.4)]
+    optimizer = torch.optim.Adam([dict(params=model.parameters(), lr=float(config.LEARNING_RATE))])
     scheduler = fetch_scheduler(optimizer)
 
     train_epoch = smp.utils.train.TrainEpoch(
@@ -134,10 +118,6 @@ def train():
             if scheduler is not None:
                 scheduler.step()
 
-        # if epoch == 20:
-        #     optimizer.param_groups[0]['lr'] = 1e-5
-        #     print('Decrease decoder learning rate to 1e-5!')
-
 
 def get_last_exp_number(model_name):
     folders = [x[0] for x in os.walk(os.path.join("logs", model_name))][1:]
@@ -155,5 +135,3 @@ def get_last_exp_number(model_name):
 
 if __name__ == '__main__':
     train()
-
-    # python3  src/segmentation_train.py --data_file data.txt --classes_file classes.txt

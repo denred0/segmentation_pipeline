@@ -10,31 +10,8 @@ import albumentations as albu
 import torch
 import segmentation_models_pytorch as smp
 
+
 class DatasetWrapper(BaseDataset):
-    """Read images, apply augmentation and preprocessing transformations.
-
-    Args:
-        images_dir (str): path to images folder
-        masks_dir (str): path to segmentation masks folder
-        class_values (list): values of classes to extract from segmentation mask
-        augmentation (albumentations.Compose): data transfromation pipeline
-            (e.g. flip, scale, etc.)
-        preprocessing (albumentations.Compose): data preprocessing
-            (e.g. noralization, shape manipulation, etc.)
-
-    """
-
-    # CLASSES = [
-    #     'background',
-    #     'picture',
-    #     'pushed',
-    #     'wrinkle',
-    #     'break',
-    # ]
-    # CLASSES = ['sky', 'building', 'pole', 'road', 'pavement',
-    #            'tree', 'signsymbol', 'fence', 'car',
-    #            'pedestrian', 'bicyclist', 'unlabelled']
-
     def __init__(
             self,
             images_dir,
