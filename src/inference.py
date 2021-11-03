@@ -24,7 +24,8 @@ def inference_images(images_dir: Path, root_output_dir: Path, model, pretrain_pr
         image_original_height, image_original_width = image_original.shape[:2]
 
         x_tensor = process_image_to_tensor(image_original, pretrain_prepocessing)
-        predicted_mask = model.predict(x_tensor).argmax(dim=1).detach().cpu().numpy().squeeze()
+        predicted_mask = model.predict(x_tensor)
+        predicted_mask = predicted_mask.argmax(dim=1).detach().cpu().numpy().squeeze()
 
         predicted_mask_rgb = np.zeros((predicted_mask.shape[0], predicted_mask.shape[1], 3), dtype=int)
 
@@ -81,7 +82,7 @@ def process_image_to_tensor(image, pretrain_prepocessing):
 if __name__ == '__main__':
     images_dir = "data/train/test"
     root_output_dir = "data/inference/output"
-    weights_path = "logs/FPN_inceptionv4/exp_0/e6_loss_0.0319_iou_score_0.9488.pth"
+    weights_path = "logs/FPN_efficientnet-b3/exp_0/e5_loss_0.0541_iou_score_0.9240.pth"
 
     inference_main(Path(images_dir), Path(root_output_dir), weights_path)
 

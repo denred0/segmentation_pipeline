@@ -28,7 +28,7 @@ IMAGE_WIDTH_PADDED = IMAGE_WIDTH_RESIZE if IMAGE_WIDTH_RESIZE % 32 == 0 else (IM
 IMAGE_EXTENSION_INPUT = ".jpg"
 IMAGE_EXTENSION_OUTPUT = ".png"
 
-ENCODER = "efficientnet-b3" #"se_resnext101_32x4d"
+ENCODER = "se_resnext101_32x4d" #"se_resnext101_32x4d"
 ARCH = "FPN"
 ENCODER_WEIGHTS = 'imagenet'
 ACTIVATION = "sigmoid"
@@ -43,7 +43,7 @@ T_0 = 25,
 WARMUP_EPOCHS = 0,
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 WEIGHT_DECAY = 1e-4
-GAMMA = 0.99
+GAMMA = 0.95
 EARLY_STOP_PATIENCE = 3
 
 X_TRAIN_DIR = "data/train/train"
