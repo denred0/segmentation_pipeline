@@ -27,7 +27,7 @@ def train_val_test_split(dataset_dir: Path, val_fraction: float, test_fraction: 
             shutil.rmtree(output_dir)
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-    images_paths = get_all_files_in_folder(dataset_dir.joinpath("images"), ["*.jpg"])
+    images_paths = get_all_files_in_folder(dataset_dir.joinpath("images"), ["*" + config.IMAGE_EXTENSION_OUTPUT])
     shuffle(images_paths)
 
     train_size, val_size, test_size = get_sizes_from_fraction(images_paths, val_fraction, test_fraction)

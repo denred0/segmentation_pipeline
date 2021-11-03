@@ -1,21 +1,41 @@
 import torch
+import seaborn as sns
+import numpy as np
 
-CLASSES = ['smoke', 'unlabelled']
-PALETTE = [[0, 0, 255], [0, 0, 0]]
+CLASSES = ['unlabelled', 'smoke']
+# CLASSES = ['sky', 'building', 'pole', 'road', 'pavement', 'tree', 'signsymbol', 'fence', 'car', 'pedestrian',
+#            'bicyclist', 'unlabelled', ]
+
+
+CLASS_INDEXES = [index for index, value in enumerate(CLASSES)]
+
+palette_sns = sns.color_palette(palette='bright', n_colors=len(CLASSES))
+PALETTE = []
+for p in palette_sns:
+    PALETTE.append([int(np.clip(x * 255, 0, 255)) for x in p])
+
+# PALETTE = reversed(PALETTE)
 
 IMAGE_HEIGHT = 1080
-IMAGE_HEIGHT_PADDED = IMAGE_HEIGHT if IMAGE_HEIGHT % 32 == 0 else (IMAGE_HEIGHT // 32 + 1) * 32
 IMAGE_WIDTH = 1920
-IMAGE_WIDTH_PADDED = IMAGE_WIDTH if IMAGE_WIDTH % 32 == 0 else (IMAGE_WIDTH // 32 + 1) * 32
 
-ENCODER = "se_resnext101_32x4d"
+IMAGE_HEIGHT_RESIZE = 864
+IMAGE_WIDTH_RESIZE = 864
+
+IMAGE_HEIGHT_PADDED = IMAGE_HEIGHT_RESIZE if IMAGE_HEIGHT_RESIZE % 32 == 0 else (IMAGE_HEIGHT_RESIZE // 32 + 1) * 32
+IMAGE_WIDTH_PADDED = IMAGE_WIDTH_RESIZE if IMAGE_WIDTH_RESIZE % 32 == 0 else (IMAGE_WIDTH_RESIZE // 32 + 1) * 32
+
+IMAGE_EXTENSION_INPUT = ".jpg"
+IMAGE_EXTENSION_OUTPUT = ".png"
+
+ENCODER = "efficientnet-b3" #"se_resnext101_32x4d"
 ARCH = "FPN"
 ENCODER_WEIGHTS = 'imagenet'
 ACTIVATION = "sigmoid"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LEARNING_RATE = 0.0001
-BATCH_SIZE = 8
-EPOCH = 50
+LEARNING_RATE = 0.001
+BATCH_SIZE = 2
+EPOCH = 10
 SCHEDULER = "ExponentialLR"
 MIN_LR = 1e-6,
 T_MAX = 100,
@@ -24,6 +44,7 @@ WARMUP_EPOCHS = 0,
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 WEIGHT_DECAY = 1e-4
 GAMMA = 0.99
+EARLY_STOP_PATIENCE = 3
 
 X_TRAIN_DIR = "data/train/train"
 Y_TRAIN_DIR = "data/train/trainannot"

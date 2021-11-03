@@ -7,74 +7,135 @@ import segmentation_models_pytorch as smp
 from pathlib import Path
 from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler
+from collections import defaultdict
+import matplotlib.pyplot as plt
 
 from dataset_wrapper import DatasetWrapper
-from augmentation import get_training_augmentation, get_validation_augmentation, get_preprocessing
+from augmentation import get_training_augmentation, get_validation_transformation, get_preprocessing
 
 import config
+import losses
+import dice_loss
 
-from my_utils import seed_everything
+from my_utils import seed_everything, save_checkpoint, get_model_and_preprocessing
 
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+def fetch_scheduler(optimizer: torch.optim) -> torch.optim.lr_scheduler:
+    scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=config.T_MAX[0], eta_min=config.MIN_LR[0])
 
-
-def fetch_scheduler(optimizer):
     if config.SCHEDULER == 'CosineAnnealingLR':
         scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=config.T_MAX[0], eta_min=config.MIN_LR[0])
     elif config.SCHEDULER == 'CosineAnnealingWarmRestarts':
         scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=config.T_0[0], eta_min=config.MIN_LR[0])
     elif config.SCHEDULER == 'ExponentialLR':
-        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=config.GAMMA, verbose=False)
-    elif config.SCHEDULER == None:
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=config.GAMMA)
+    elif config.SCHEDULER is None:
         return None
 
     return scheduler
 
 
+def create_and_get_experiment_path() -> str:
+    experiment_name = config.ARCH + "_" + config.ENCODER
+    experiment_number = get_last_exp_number(experiment_name)
+
+    experiment_path = "logs" + os.sep + experiment_name + os.sep + "exp_" + str(experiment_number)
+
+    Path(experiment_path).mkdir(parents=True, exist_ok=True)
+
+    return experiment_path
+
+
 def train():
     seed_everything(config.SEED)
 
-    experiment = config.ARCH + "_" + config.ENCODER
-    exp_number = get_last_exp_number(experiment)
+    experiment_path = create_and_get_experiment_path()
 
-    x_train_dir = config.X_TRAIN_DIR
-    y_train_dir = config.Y_TRAIN_DIR
-    x_valid_dir = config.X_VALID_DIR
-    y_valid_dir = config.Y_VALID_DIR
+    model, pretrain_prepocessing = get_model_and_preprocessing(mode="train")
 
-    # create segmentation model with pretrained encoder
-    model = smp.FPN(
-        encoder_name=config.ENCODER,
-        encoder_weights=config.ENCODER_WEIGHTS,
-        classes=len(config.CLASSES),
-        activation=config.ACTIVATION,
-    )
+    train_loader, valid_loader = get_train_valid_loaders(pretrain_prepocessing)
 
-    preprocessing_fn = smp.encoders.get_preprocessing_fn(config.ENCODER, config.ENCODER_WEIGHTS)
+    train_epoch, valid_epoch, scheduler, loss_name = get_train_valid_epoch(model)
 
-    train_dataset = DatasetWrapper(
-        x_train_dir,
-        y_train_dir,
-        all_classes=config.CLASSES,
-        augmentation=get_training_augmentation(),
-        preprocessing=get_preprocessing(preprocessing_fn),
-        classes=config.CLASSES,
-    )
+    max_score = 0
+    current_early_stop_patience = 0
+    history = defaultdict(list)
+    epochs_before_early_stopping = 0
 
-    valid_dataset = DatasetWrapper(
-        x_valid_dir,
-        y_valid_dir,
-        all_classes=config.CLASSES,
-        augmentation=get_validation_augmentation(),
-        preprocessing=get_preprocessing(preprocessing_fn),
-        classes=config.CLASSES,
-    )
+    for epoch in range(1, int(config.EPOCH) + 1):
 
-    train_loader = DataLoader(train_dataset, batch_size=int(config.BATCH_SIZE), shuffle=True, num_workers=0)
-    valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, num_workers=0)
+        epochs_before_early_stopping = epoch
 
-    loss = smp.utils.losses.JaccardLoss()
+        print('\nEpoch: {}'.format(epoch))
+        train_logs = train_epoch.run(train_loader)
+        valid_logs = valid_epoch.run(valid_loader)
+
+        history['Train Loss'].append(train_logs[loss_name])
+        history['Train Acc'].append(train_logs['iou_score'])
+        history['Valid Loss'].append(valid_logs[loss_name])
+        history['Valid Acc'].append(valid_logs['iou_score'])
+
+        if max_score < valid_logs['iou_score']:
+            max_score = valid_logs['iou_score']
+            loss = valid_logs[loss_name]
+
+            save_checkpoint(model, experiment_path, epoch, loss, max_score)
+
+        else:
+            if current_early_stop_patience >= config.EARLY_STOP_PATIENCE:
+                print(f"Early stop on epoch {epoch}")
+                break
+            else:
+                current_early_stop_patience += 1
+
+        # if epoch % 2 == 0:
+        if scheduler is not None:
+            scheduler.step()
+
+    draw_result(range(epochs_before_early_stopping), history['Train Loss'], history['Valid Loss'], history['Train Acc'],
+                history['Valid Acc'])
+
+
+def draw_result(lst_iter, train_loss, val_loss, train_acc, val_acc):
+    fig, axis = plt.subplots(nrows=1, ncols=2, figsize=(12, 6), sharey=True, sharex=True)
+
+    axis[0].plot(lst_iter, train_loss, '-b', label='Training loss')
+    axis[0].plot(lst_iter, val_loss, '-g', label='Validation loss')
+    axis[0].set_title("Training and Validation loss")
+    axis[0].legend()
+
+    axis[1].plot(lst_iter, train_acc, '-b', label='Training acc')
+    axis[1].plot(lst_iter, val_acc, '-g', label='Validation acc')
+    axis[1].set_title("Training and Validation acc")
+    axis[1].legend()
+
+    # fig.tight_layout()
+
+    # plt.plot(lst_iter, train_loss, '-b', label='Training loss')
+    # plt.plot(lst_iter, val_loss, '-g', label='Validation loss')
+    #
+    # plt.title('Training and Validation loss')
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Loss')
+    # plt.legend()
+
+    # save image
+    plt.savefig("result.png")  # should before show method
+
+    # show
+    # plt.show()
+
+
+def get_train_valid_epoch(model):
+    # loss = smp.utils.losses.JaccardLoss()
+    # class_weights = [0.5, 0.5]
+    # loss = losses.CrossentropyND(torch.FloatTensor(class_weights).cuda())
+    # loss = losses.CrossentropyND()
+
+    loss = dice_loss.SSLoss()
+    loss_name = "SSLoss"
+    setattr(loss, '__name__', loss_name)
+
     metrics = [smp.utils.metrics.IoU(threshold=0.4)]
     optimizer = torch.optim.Adam([dict(params=model.parameters(), lr=float(config.LEARNING_RATE))])
     scheduler = fetch_scheduler(optimizer)
@@ -96,27 +157,32 @@ def train():
         verbose=True,
     )
 
-    max_score = 0
-    Path("logs").joinpath(experiment).joinpath("exp_" + str(exp_number)).mkdir(parents=True, exist_ok=True)
+    return train_epoch, valid_epoch, scheduler, loss_name
 
-    for epoch in range(1, int(config.EPOCH) + 1):
 
-        print('\nEpoch: {}'.format(epoch))
-        train_logs = train_epoch.run(train_loader)
-        valid_logs = valid_epoch.run(valid_loader)
+def get_train_valid_loaders(pretrain_prepocessing):
+    train_dataset = DatasetWrapper(
+        config.X_TRAIN_DIR,
+        config.Y_TRAIN_DIR,
+        all_classes=config.CLASSES,
+        augmentation=get_training_augmentation(),
+        preprocessing=get_preprocessing(pretrain_prepocessing),
+        classes=config.CLASSES,
+    )
 
-        # do something (save model, change lr, etc.)
-        if max_score < valid_logs['iou_score']:
-            max_score = valid_logs['iou_score']
-            loss = valid_logs['jaccard_loss']
-            weights_path = Path("logs").joinpath(experiment).joinpath("exp_" + str(exp_number)).joinpath(
-                "e{:.0f}_jaccard_loss_{:.4f}_iou_score_{:.4f}.pth".format(epoch, loss, max_score))
+    valid_dataset = DatasetWrapper(
+        config.X_VALID_DIR,
+        config.Y_VALID_DIR,
+        all_classes=config.CLASSES,
+        augmentation=get_validation_transformation(),
+        preprocessing=get_preprocessing(pretrain_prepocessing),
+        classes=config.CLASSES,
+    )
 
-            torch.save(model, weights_path)
+    train_loader = DataLoader(train_dataset, batch_size=int(config.BATCH_SIZE), shuffle=True, num_workers=0)
+    valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, num_workers=0)
 
-        if epoch == 1:
-            if scheduler is not None:
-                scheduler.step()
+    return train_loader, valid_loader
 
 
 def get_last_exp_number(model_name):

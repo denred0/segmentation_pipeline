@@ -21,6 +21,7 @@ def visualize(**images):
 def visualize_dataset():
     dataset = DatasetWrapper(config.X_TRAIN_DIR,
                              config.Y_TRAIN_DIR,
+                             augmentation=get_validation_augmentation(),
                              all_classes=config.CLASSES,
                              classes=[config.CLASSES[0]])
     for i in range(3):
@@ -40,9 +41,10 @@ def visualize_dataset_augmented():
     # same image with different random transforms
     for i in range(3):
         image, mask = augmented_dataset[1]
-        visualize(image=image, mask=mask.squeeze(-1))
+        visualize(image=image, mask=mask)
+        # visualize(image=image, mask=mask.squeeze(-1))
 
 
 if __name__ == "__main__":
-    # visualize_dataset()
-    visualize_dataset_augmented()
+    visualize_dataset()
+    # visualize_dataset_augmented()

@@ -9,8 +9,7 @@ def get_training_augmentation():
 
         A.HorizontalFlip(p=0.5),
         # A.ShiftScaleRotate(scale_limit=0.5, rotate_limit=0, shift_limit=0.1, p=1, border_mode=0),
-        A.PadIfNeeded(min_height=config.IMAGE_HEIGHT_PADDED, min_width=config.IMAGE_WIDTH_PADDED, always_apply=True,
-                      border_mode=0),
+
         # A.RandomCrop(height=320, width=320, always_apply=True),
         A.GaussNoise(p=0.2),
         # A.Perspective(p=0.5),
@@ -37,16 +36,20 @@ def get_training_augmentation():
             ],
             p=0.9,
         ),
+        A.Resize(height=config.IMAGE_HEIGHT_RESIZE, width=config.IMAGE_WIDTH_RESIZE),
+        A.PadIfNeeded(min_height=config.IMAGE_HEIGHT_PADDED, min_width=config.IMAGE_WIDTH_PADDED, always_apply=True,
+                      border_mode=0),
     ]
     return A.Compose(train_transform)
 
 
-def get_validation_augmentation():
+def get_validation_transformation():
     """Add paddings to make image shape divisible by 32"""
-    test_transform = [
+    valid_transforms = [
+        A.Resize(height=config.IMAGE_HEIGHT_RESIZE, width=config.IMAGE_WIDTH_RESIZE),
         A.PadIfNeeded(min_height=config.IMAGE_HEIGHT_PADDED, min_width=config.IMAGE_WIDTH_PADDED)
     ]
-    return A.Compose(test_transform)
+    return A.Compose(valid_transforms)
 
 
 def to_tensor(x, **kwargs):

@@ -4,11 +4,7 @@ from torch.utils.data import Dataset as BaseDataset
 
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
-import albumentations as albu
-
-import torch
-import segmentation_models_pytorch as smp
+import config
 
 
 class DatasetWrapper(BaseDataset):
@@ -21,13 +17,13 @@ class DatasetWrapper(BaseDataset):
             augmentation=None,
             preprocessing=None,
     ):
-        self.ids = os.listdir(images_dir)
-        self.images_fps = [os.path.join(images_dir, image_id) for image_id in self.ids]
-        self.masks_fps = [os.path.join(masks_dir, image_id) for image_id in self.ids]
-        # self.all_classes = all_classes
+        self.images_ids = os.listdir(images_dir)
+        self.images_paths = [os.path.join(images_dir, image_id) for image_id in self.images_ids]
+        self.masks_paths = [os.path.join(masks_dir, image_id) for image_id in self.images_ids]
 
         # convert str names to class values on masks
-        self.class_values = [all_classes.index(cls.lower()) for cls in classes]
+        # self.class_values = [all_classes.index(cls.lower()) for cls in classes]
+        self.class_values = list(range(len(classes)))
 
         self.augmentation = augmentation
         self.preprocessing = preprocessing
@@ -35,9 +31,9 @@ class DatasetWrapper(BaseDataset):
     def __getitem__(self, i):
 
         # read data
-        image = cv2.imread(self.images_fps[i])
+        image = cv2.imread(self.images_paths[i])
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        mask = cv2.imread(self.masks_fps[i], 0)
+        mask = cv2.imread(self.masks_paths[i], 0)
 
         # extract certain classes from mask (e.g. cars)
         masks = [(mask == v) for v in self.class_values]
@@ -56,4 +52,4 @@ class DatasetWrapper(BaseDataset):
         return image, mask
 
     def __len__(self):
-        return len(self.ids)
+        return len(self.images_ids)
