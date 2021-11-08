@@ -9,25 +9,19 @@ from my_utils import get_all_files_in_folder, seed_everything
 import config
 
 
-def train_val_test_split(dataset_dir: Path, val_fraction: float, test_fraction: float) -> None:
-    """
-    :param dataset_dir: root directory of dataset
-    :param val_part: fraction of val dataset
-    :param test_fraction: fraction of test dataset
-    :return: None
-    """
-
+def train_val_test_split_shuffle(input_dir: Path, output_dir_root: Path, val_fraction: float,
+                                 test_fraction: float) -> None:
     seed_everything(config.SEED)
 
     # recreate output dirs
     output_dirs = ["train", "trainannot", "val", "valannot", "test", "testannot"]
     for directory in output_dirs:
-        output_dir = Path("data").joinpath("train_val_test_split").joinpath("output").joinpath(directory)
+        output_dir = output_dir_root.joinpath(directory)
         if output_dir.exists() and output_dir.is_dir():
             shutil.rmtree(output_dir)
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-    images_paths = get_all_files_in_folder(dataset_dir.joinpath("images"), ["*" + config.IMAGE_EXTENSION_OUTPUT])
+    images_paths = get_all_files_in_folder(input_dir.joinpath("images"), ["*" + config.IMAGE_EXTENSION_OUTPUT])
     shuffle(images_paths)
 
     train_size, val_size, test_size = get_sizes_from_fraction(images_paths, val_fraction, test_fraction)
@@ -53,12 +47,6 @@ def move_to_folder(images_to_move: List, schema: str) -> None:
 
 
 def get_sizes_from_fraction(dataset: List, val_fraction: float, test_fraction: float) -> Tuple[int, int, int]:
-    """
-    Получаем из датасета размеры большой и маленькой выборки
-    :param dataset: любой объект, имеющий метод len()
-    :param fraction: желательно передавать в пределах 0 < x <= 0.5
-    :return: два значения: размер большой выборки, размер маленькой выборки
-    """
     full_len = len(dataset)
     test_val_len = int(full_len * (val_fraction + test_fraction))
     train_len = full_len - test_val_len
@@ -71,6 +59,7 @@ def get_sizes_from_fraction(dataset: List, val_fraction: float, test_fraction: f
 
 
 if __name__ == "__main__":
-    dataset_dir = "data/train_val_test_split/input"
+    input_dir = "data/train_val_test_split/input"
+    output_dir = "data/train_val_test_split/output"
 
-    train_val_test_split(Path(dataset_dir), val_fraction=0.2, test_fraction=0.1)
+    train_val_test_split_shuffle(Path(input_dir), Path(output_dir), val_fraction=0.1, test_fraction=0.1)

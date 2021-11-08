@@ -11,7 +11,7 @@ import config
 
 
 def inference_main(images_dir: Path, root_output_dir: Path, weights_path: str) -> None:
-    recreate_folders(["images", "masks", "masks_rgb", "visualization"])
+    recreate_folders(root_output_dir, ["images", "masks", "masks_rgb", "visualization"])
     model, pretrain_prepocessing = get_model_and_preprocessing(mode="eval", weights_path=weights_path)
     inference_images(images_dir, root_output_dir, model, pretrain_prepocessing)
 
@@ -61,7 +61,7 @@ def get_image_for_visualization(image, predicted_mask):
         else:
             original_image_with_mask[(predicted_mask == class_ind), :] = class_color_rgb
 
-    alpha = 0.5
+    alpha = 0.3
     cv2.addWeighted(original_image_with_mask, alpha, image_for_visualization, 1 - alpha, 0, image_for_visualization)
 
     return image_for_visualization
@@ -82,7 +82,7 @@ def process_image_to_tensor(image, pretrain_prepocessing):
 if __name__ == '__main__':
     images_dir = "data/train/test"
     root_output_dir = "data/inference/output"
-    weights_path = "logs/FPN_efficientnet-b3/exp_0/e5_loss_0.0541_iou_score_0.9240.pth"
+    weights_path = "logs/FPN_se_resnext101_32x4d/exp_34/e10_loss_0.0028_iou_score_0.9842.pth"
 
     inference_main(Path(images_dir), Path(root_output_dir), weights_path)
 

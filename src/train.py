@@ -109,16 +109,6 @@ def draw_result(lst_iter, train_loss, val_loss, train_acc, val_acc):
     axis[1].set_title("Training and Validation acc")
     axis[1].legend()
 
-    # fig.tight_layout()
-
-    # plt.plot(lst_iter, train_loss, '-b', label='Training loss')
-    # plt.plot(lst_iter, val_loss, '-g', label='Validation loss')
-    #
-    # plt.title('Training and Validation loss')
-    # plt.xlabel('Epochs')
-    # plt.ylabel('Loss')
-    # plt.legend()
-
     # save image
     plt.savefig("result.png")  # should before show method
 
