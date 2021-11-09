@@ -2,10 +2,11 @@ import torch
 import seaborn as sns
 import numpy as np
 
-CLASSES = ['unlabelled', 'smoke']
+# CLASSES = ['unlabelled', 'smoke', 'spotlight']
+CLASSES = ['unlabelled', 'shsy5y', 'astro', 'cort']
+
 # CLASSES = ['sky', 'building', 'pole', 'road', 'pavement', 'tree', 'signsymbol', 'fence', 'car', 'pedestrian',
 #            'bicyclist', 'unlabelled', ]
-
 
 CLASS_INDEXES = [index for index, value in enumerate(CLASSES)]
 
@@ -14,16 +15,21 @@ PALETTE = []
 for p in palette_sns:
     PALETTE.append([int(np.clip(x * 255, 0, 255)) for x in p])
 
-# PALETTE = reversed(PALETTE)
 
-IMAGE_HEIGHT = 1080
-IMAGE_WIDTH = 1920
+# IMAGE_HEIGHT_ORIGINAL = 1080
+# IMAGE_WIDTH_ORIGINAL = 1920
 
-IMAGE_HEIGHT_RESIZE = 864
-IMAGE_WIDTH_RESIZE = 864
+IMAGE_HEIGHT_ORIGINAL = 520
+IMAGE_WIDTH_ORIGINAL = 704
 
-IMAGE_HEIGHT_PADDED = IMAGE_HEIGHT_RESIZE if IMAGE_HEIGHT_RESIZE % 32 == 0 else (IMAGE_HEIGHT_RESIZE // 32 + 1) * 32
-IMAGE_WIDTH_PADDED = IMAGE_WIDTH_RESIZE if IMAGE_WIDTH_RESIZE % 32 == 0 else (IMAGE_WIDTH_RESIZE // 32 + 1) * 32
+# IMAGE_HEIGHT_TRAIN = 864
+# IMAGE_WIDTH_TRAIN = 864
+
+IMAGE_HEIGHT_TRAIN = 520
+IMAGE_WIDTH_TRAIN = 704
+
+IMAGE_HEIGHT_TRAIN_PADDED = IMAGE_HEIGHT_TRAIN if IMAGE_HEIGHT_TRAIN % 32 == 0 else (IMAGE_HEIGHT_TRAIN // 32 + 1) * 32
+IMAGE_WIDTH_TRAIN_PADDED = IMAGE_WIDTH_TRAIN if IMAGE_WIDTH_TRAIN % 32 == 0 else (IMAGE_WIDTH_TRAIN // 32 + 1) * 32
 
 IMAGE_EXTENSION_INPUT = ".jpg"
 IMAGE_EXTENSION_OUTPUT = ".png"
@@ -37,7 +43,7 @@ ACTIVATION = "sigmoid"
 
 LEARNING_RATE = 0.001
 BATCH_SIZE = 2
-EPOCH = 10
+EPOCH = 20
 SCHEDULER = "ExponentialLR"
 EARLY_STOP_PATIENCE = 3
 

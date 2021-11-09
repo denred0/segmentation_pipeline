@@ -36,8 +36,9 @@ def get_training_augmentation():
             ],
             p=0.9,
         ),
-        A.Resize(height=config.IMAGE_HEIGHT_RESIZE, width=config.IMAGE_WIDTH_RESIZE),
-        A.PadIfNeeded(min_height=config.IMAGE_HEIGHT_PADDED, min_width=config.IMAGE_WIDTH_PADDED, always_apply=True,
+        A.Resize(height=config.IMAGE_HEIGHT_TRAIN, width=config.IMAGE_WIDTH_TRAIN),
+        A.PadIfNeeded(min_height=config.IMAGE_HEIGHT_TRAIN_PADDED, min_width=config.IMAGE_WIDTH_TRAIN_PADDED,
+                      always_apply=True,
                       border_mode=0),
     ]
     return A.Compose(train_transform)
@@ -46,8 +47,8 @@ def get_training_augmentation():
 def get_validation_transformation():
     """Add paddings to make image shape divisible by 32"""
     valid_transforms = [
-        A.Resize(height=config.IMAGE_HEIGHT_RESIZE, width=config.IMAGE_WIDTH_RESIZE),
-        A.PadIfNeeded(min_height=config.IMAGE_HEIGHT_PADDED, min_width=config.IMAGE_WIDTH_PADDED)
+        A.Resize(height=config.IMAGE_HEIGHT_TRAIN, width=config.IMAGE_WIDTH_TRAIN),
+        A.PadIfNeeded(min_height=config.IMAGE_HEIGHT_TRAIN_PADDED, min_width=config.IMAGE_WIDTH_TRAIN_PADDED)
     ]
     return A.Compose(valid_transforms)
 

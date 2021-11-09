@@ -34,9 +34,9 @@ def save_checkpoint(model, experiment_path, epoch, loss, iou_score):
     torch.save({'model_state_dict': model.state_dict(), }, path)
 
 
-def recreate_folders(source_dir: Path, folders_list: List) -> None:
+def recreate_folders(root_dir: Path, folders_list: List) -> None:
     for directory in folders_list:
-        output_dir = source_dir.joinpath(directory)
+        output_dir = root_dir.joinpath(directory)
         if output_dir.exists() and output_dir.is_dir():
             shutil.rmtree(output_dir)
         Path(output_dir).mkdir(parents=True, exist_ok=True)

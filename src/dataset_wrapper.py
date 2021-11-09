@@ -12,7 +12,6 @@ class DatasetWrapper(BaseDataset):
             self,
             images_dir,
             masks_dir,
-            all_classes,
             classes=None,
             augmentation=None,
             preprocessing=None,

@@ -81,8 +81,9 @@ def process_image_to_tensor(image, pretrain_prepocessing):
 
 if __name__ == '__main__':
     images_dir = "data/train/test"
+    # images_dir = "data/inference/input"
     root_output_dir = "data/inference/output"
-    weights_path = "logs/FPN_se_resnext101_32x4d/exp_34/e10_loss_0.0028_iou_score_0.9842.pth"
+    weights_path = "logs/FPN_se_resnext101_32x4d/exp_42/e7_loss_0.0024_iou_score_0.9824.pth"
 
     inference_main(Path(images_dir), Path(root_output_dir), weights_path)
 

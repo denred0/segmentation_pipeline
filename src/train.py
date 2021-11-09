@@ -2,6 +2,8 @@
 
 import os
 import shutil
+
+import numpy as np
 import torch
 import segmentation_models_pytorch as smp
 from pathlib import Path
@@ -57,7 +59,7 @@ def train():
 
     train_epoch, valid_epoch, scheduler, loss_name = get_train_valid_epoch(model)
 
-    max_score = 0
+    min_loss = np.Inf
     current_early_stop_patience = 0
     history = defaultdict(list)
     epochs_before_early_stopping = 0
@@ -75,20 +77,23 @@ def train():
         history['Valid Loss'].append(valid_logs[loss_name])
         history['Valid Acc'].append(valid_logs['iou_score'])
 
-        if max_score < valid_logs['iou_score']:
-            max_score = valid_logs['iou_score']
+        if valid_logs[loss_name] < min_loss:
+            min_loss = valid_logs['iou_score']
+            score = valid_logs['iou_score']
             loss = valid_logs[loss_name]
 
-            save_checkpoint(model, experiment_path, epoch, loss, max_score)
-
+            save_checkpoint(model, experiment_path, epoch, loss, score)
+            current_early_stop_patience = 0
         else:
+            current_early_stop_patience += 1
+
             if current_early_stop_patience >= config.EARLY_STOP_PATIENCE:
                 print(f"Early stop on epoch {epoch}")
                 break
-            else:
-                current_early_stop_patience += 1
 
         # if epoch % 2 == 0:
+        print("current_early_stop_patience", current_early_stop_patience)
+
         if scheduler is not None:
             scheduler.step()
 
@@ -154,7 +159,6 @@ def get_train_valid_loaders(pretrain_prepocessing):
     train_dataset = DatasetWrapper(
         config.X_TRAIN_DIR,
         config.Y_TRAIN_DIR,
-        all_classes=config.CLASSES,
         augmentation=get_training_augmentation(),
         preprocessing=get_preprocessing(pretrain_prepocessing),
         classes=config.CLASSES,
@@ -163,7 +167,6 @@ def get_train_valid_loaders(pretrain_prepocessing):
     valid_dataset = DatasetWrapper(
         config.X_VALID_DIR,
         config.Y_VALID_DIR,
-        all_classes=config.CLASSES,
         augmentation=get_validation_transformation(),
         preprocessing=get_preprocessing(pretrain_prepocessing),
         classes=config.CLASSES,

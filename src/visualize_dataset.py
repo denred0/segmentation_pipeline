@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from dataset_wrapper import DatasetWrapper
-from augmentation import get_training_augmentation, get_validation_augmentation, get_preprocessing
+from augmentation import get_training_augmentation, get_validation_transformation, get_preprocessing
 
 import config
 
@@ -21,10 +21,10 @@ def visualize(**images):
 def visualize_dataset():
     dataset = DatasetWrapper(config.X_TRAIN_DIR,
                              config.Y_TRAIN_DIR,
-                             augmentation=get_validation_augmentation(),
+                             augmentation=get_validation_transformation(),
                              all_classes=config.CLASSES,
                              classes=[config.CLASSES[0]])
-    for i in range(3):
+    for i in range(10):
         image, mask = dataset[i]  # get some sample
         visualize(image=image, mask=mask.squeeze())
 
