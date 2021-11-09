@@ -78,11 +78,10 @@ def train():
         history['Valid Acc'].append(valid_logs['iou_score'])
 
         if valid_logs[loss_name] < min_loss:
-            min_loss = valid_logs['iou_score']
+            min_loss = valid_logs[loss_name]
             score = valid_logs['iou_score']
-            loss = valid_logs[loss_name]
 
-            save_checkpoint(model, experiment_path, epoch, loss, score)
+            save_checkpoint(model, experiment_path, epoch, min_loss, score)
             current_early_stop_patience = 0
         else:
             current_early_stop_patience += 1
