@@ -108,7 +108,7 @@ def analyze_split_proportion(data_dir: str) -> None:
 if __name__ == "__main__":
     input_dir = "data/train_val_test_split/input"
 
-    one_class_per_image = True
+    one_class_per_image = False
 
     if one_class_per_image:
         output_dir = "data/train_val_test_split/output/train_val_test_split_one_class_per_image/train_val_test"

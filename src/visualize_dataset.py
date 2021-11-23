@@ -22,7 +22,6 @@ def visualize_dataset():
     dataset = DatasetWrapper(config.X_TRAIN_DIR,
                              config.Y_TRAIN_DIR,
                              augmentation=get_validation_transformation(),
-                             all_classes=config.CLASSES,
                              classes=[config.CLASSES[0]])
     for i in range(10):
         image, mask = dataset[i]  # get some sample
@@ -34,7 +33,6 @@ def visualize_dataset_augmented():
         config.X_TRAIN_DIR,
         config.Y_TRAIN_DIR,
         augmentation=get_training_augmentation(),
-        all_classes=config.CLASSES,
         classes=[config.CLASSES[0]]
     )
 

@@ -2,8 +2,8 @@ import torch
 import seaborn as sns
 import numpy as np
 
-# CLASSES = ['unlabelled', 'smoke', 'spotlight']
-CLASSES = ['unlabelled', 'shsy5y', 'astro', 'cort']
+ALL_CLASSES = ['unlabelled', 'smoke', 'spotlight']
+CLASSES = ['unlabelled', 'smoke', 'spotlight']
 
 # CLASSES = ['sky', 'building', 'pole', 'road', 'pavement', 'tree', 'signsymbol', 'fence', 'car', 'pedestrian',
 #            'bicyclist', 'unlabelled', ]
@@ -15,20 +15,19 @@ PALETTE = []
 for p in palette_sns:
     PALETTE.append([int(np.clip(x * 255, 0, 255)) for x in p])
 
+IMAGE_HEIGHT_ORIGINAL = 1080
+IMAGE_WIDTH_ORIGINAL = 1920
 
-# IMAGE_HEIGHT_ORIGINAL = 1080
-# IMAGE_WIDTH_ORIGINAL = 1920
+# IMAGE_HEIGHT_ORIGINAL = 520
+# IMAGE_WIDTH_ORIGINAL = 704
 
-IMAGE_HEIGHT_ORIGINAL = 520
-IMAGE_WIDTH_ORIGINAL = 704
+IMAGE_HEIGHT_TRAIN = 864
+IMAGE_WIDTH_TRAIN = 864
 
-# IMAGE_HEIGHT_TRAIN = 864
-# IMAGE_WIDTH_TRAIN = 864
+# IMAGE_HEIGHT_TRAIN = 520
+# IMAGE_WIDTH_TRAIN = 704
 
-IMAGE_HEIGHT_TRAIN = 520
-IMAGE_WIDTH_TRAIN = 704
-
-IMAGE_HEIGHT_TRAIN_PADDED = IMAGE_HEIGHT_TRAIN if IMAGE_HEIGHT_TRAIN % 32 == 0 else (IMAGE_HEIGHT_TRAIN // 32 + 1) * 32
+IMAGE_HEIGHT_TRAIN_PADDED = IMAGE_WIDTH_TRAIN if IMAGE_WIDTH_TRAIN % 32 == 0 else (IMAGE_WIDTH_TRAIN // 32 + 1) * 32
 IMAGE_WIDTH_TRAIN_PADDED = IMAGE_WIDTH_TRAIN if IMAGE_WIDTH_TRAIN % 32 == 0 else (IMAGE_WIDTH_TRAIN // 32 + 1) * 32
 
 IMAGE_EXTENSION_INPUT = ".jpg"
@@ -36,14 +35,15 @@ IMAGE_EXTENSION_OUTPUT = ".png"
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-ENCODER = "se_resnext101_32x4d"  # "se_resnext101_32x4d"
+ENCODER = "se_resnext101_32x4d"  # "se_resnext101_32x4d"  # "se_resnext101_32x4d"
 ARCH = "FPN"
 ENCODER_WEIGHTS = 'imagenet'
-ACTIVATION = "sigmoid"
+ACTIVATION = None #"softmax2d"  # "softmax2d"#"sigmoid"
 
+# LEARNING_RATE = 0.001
 LEARNING_RATE = 0.001
 BATCH_SIZE = 2
-EPOCH = 20
+EPOCH = 30
 SCHEDULER = "ExponentialLR"
 EARLY_STOP_PATIENCE = 3
 
@@ -62,3 +62,6 @@ Y_VALID_DIR = "data/train/valannot"
 WEIGHTS_SAVE_DIR = "logs"
 
 SEED = 42
+
+NOT_CONFIDENT_COLOR = [0, 255, 255]
+THRESHOLD_INFERENCE = 0.53

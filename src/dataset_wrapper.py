@@ -21,8 +21,8 @@ class DatasetWrapper(BaseDataset):
         self.masks_paths = [os.path.join(masks_dir, image_id) for image_id in self.images_ids]
 
         # convert str names to class values on masks
-        # self.class_values = [all_classes.index(cls.lower()) for cls in classes]
-        self.class_values = list(range(len(classes)))
+        self.class_values = [config.ALL_CLASSES.index(cls.lower()) for cls in classes]
+        # self.class_values = list(range(len(classes)))
 
         self.augmentation = augmentation
         self.preprocessing = preprocessing

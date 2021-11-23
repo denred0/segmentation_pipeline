@@ -16,7 +16,7 @@ from dataset_wrapper import DatasetWrapper
 from augmentation import get_training_augmentation, get_validation_transformation, get_preprocessing
 
 import config
-import losses
+import losses2
 import dice_loss
 
 from my_utils import seed_everything, save_checkpoint, get_model_and_preprocessing
@@ -126,9 +126,15 @@ def get_train_valid_epoch(model):
     # loss = losses.CrossentropyND(torch.FloatTensor(class_weights).cuda())
     # loss = losses.CrossentropyND()
 
-    loss = dice_loss.SSLoss()
-    loss_name = "SSLoss"
-    setattr(loss, '__name__', loss_name)
+    # loss = losses2.Combo_Loss()
+    # loss_name = "SSLoss"
+
+    # loss = dice_loss.SSLoss()
+    # loss_name = "SSLoss"
+    # setattr(loss, '__name__', loss_name)
+
+    loss_name = "bce_with_logits_loss"
+    loss = smp.utils.losses.BCEWithLogitsLoss()
 
     metrics = [smp.utils.metrics.IoU(threshold=0.4)]
     optimizer = torch.optim.Adam([dict(params=model.parameters(), lr=float(config.LEARNING_RATE))])

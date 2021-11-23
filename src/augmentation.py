@@ -36,6 +36,7 @@ def get_training_augmentation():
             ],
             p=0.9,
         ),
+        # A.CropNonEmptyMaskIfExists(height=config.IMAGE_HEIGHT_TRAIN, width=config.IMAGE_WIDTH_TRAIN),
         A.Resize(height=config.IMAGE_HEIGHT_TRAIN, width=config.IMAGE_WIDTH_TRAIN),
         A.PadIfNeeded(min_height=config.IMAGE_HEIGHT_TRAIN_PADDED, min_width=config.IMAGE_WIDTH_TRAIN_PADDED,
                       always_apply=True,
@@ -48,7 +49,14 @@ def get_validation_transformation():
     """Add paddings to make image shape divisible by 32"""
     valid_transforms = [
         A.Resize(height=config.IMAGE_HEIGHT_TRAIN, width=config.IMAGE_WIDTH_TRAIN),
-        A.PadIfNeeded(min_height=config.IMAGE_HEIGHT_TRAIN_PADDED, min_width=config.IMAGE_WIDTH_TRAIN_PADDED)
+        A.PadIfNeeded(min_height=config.IMAGE_HEIGHT_TRAIN_PADDED, min_width=config.IMAGE_WIDTH_TRAIN_PADDED,
+                      always_apply=True,
+                      border_mode=0),
+
+
+        # A.Resize(height=config.IMAGE_HEIGHT_TRAIN, width=config.IMAGE_WIDTH_TRAIN),
+        # A.Resize(height=config.IMAGE_HEIGHT_ORIGINAL, width=config.IMAGE_WIDTH_ORIGINAL),
+        # A.PadIfNeeded(min_height=1088, min_width=1920)
     ]
     return A.Compose(valid_transforms)
 
