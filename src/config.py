@@ -5,12 +5,9 @@ import numpy as np
 ALL_CLASSES = ['unlabelled', 'smoke', 'spotlight']
 CLASSES = ['unlabelled', 'smoke', 'spotlight']
 
-# CLASSES = ['sky', 'building', 'pole', 'road', 'pavement', 'tree', 'signsymbol', 'fence', 'car', 'pedestrian',
-#            'bicyclist', 'unlabelled', ]
+CLASS_INDEXES = [index for index, value in enumerate(ALL_CLASSES)]
 
-CLASS_INDEXES = [index for index, value in enumerate(CLASSES)]
-
-palette_sns = sns.color_palette(palette='bright', n_colors=len(CLASSES))
+palette_sns = sns.color_palette(palette='bright', n_colors=len(ALL_CLASSES))
 PALETTE = []
 for p in palette_sns:
     PALETTE.append([int(np.clip(x * 255, 0, 255)) for x in p])
@@ -21,8 +18,11 @@ IMAGE_WIDTH_ORIGINAL = 1920
 # IMAGE_HEIGHT_ORIGINAL = 520
 # IMAGE_WIDTH_ORIGINAL = 704
 
-IMAGE_HEIGHT_TRAIN = 864
-IMAGE_WIDTH_TRAIN = 864
+# IMAGE_WIDTH_TRAIN = 1216
+# IMAGE_HEIGHT_TRAIN = 684
+
+IMAGE_WIDTH_TRAIN = 256
+IMAGE_HEIGHT_TRAIN = 256
 
 # IMAGE_HEIGHT_TRAIN = 520
 # IMAGE_WIDTH_TRAIN = 704
@@ -30,22 +30,22 @@ IMAGE_WIDTH_TRAIN = 864
 IMAGE_HEIGHT_TRAIN_PADDED = IMAGE_WIDTH_TRAIN if IMAGE_WIDTH_TRAIN % 32 == 0 else (IMAGE_WIDTH_TRAIN // 32 + 1) * 32
 IMAGE_WIDTH_TRAIN_PADDED = IMAGE_WIDTH_TRAIN if IMAGE_WIDTH_TRAIN % 32 == 0 else (IMAGE_WIDTH_TRAIN // 32 + 1) * 32
 
-IMAGE_EXTENSION_INPUT = ".jpg"
+IMAGE_EXTENSION_INPUT = ".png"
 IMAGE_EXTENSION_OUTPUT = ".png"
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-ENCODER = "se_resnext101_32x4d"  # "se_resnext101_32x4d"  # "se_resnext101_32x4d"
+ENCODER = "inceptionv4"  # "se_resnext101_32x4d"  # "se_resnext101_32x4d"
 ARCH = "FPN"
-ENCODER_WEIGHTS = 'imagenet'
-ACTIVATION = None #"softmax2d"  # "softmax2d"#"sigmoid"
+ENCODER_WEIGHTS = 'imagenet+background'
+ACTIVATION = "sigmoid"  # "softmax2d"  # "softmax2d"#"sigmoid"
 
 # LEARNING_RATE = 0.001
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.0001
 BATCH_SIZE = 2
 EPOCH = 30
 SCHEDULER = "ExponentialLR"
-EARLY_STOP_PATIENCE = 3
+EARLY_STOP_PATIENCE = 5
 
 MIN_LR = 1e-6,
 T_MAX = 100,
@@ -64,4 +64,4 @@ WEIGHTS_SAVE_DIR = "logs"
 SEED = 42
 
 NOT_CONFIDENT_COLOR = [0, 255, 255]
-THRESHOLD_INFERENCE = 0.53
+THRESHOLD_INFERENCE = 0.5

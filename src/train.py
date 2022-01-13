@@ -18,8 +18,9 @@ from augmentation import get_training_augmentation, get_validation_transformatio
 import config
 import losses2
 import dice_loss
+import focal_loss
 
-from my_utils import seed_everything, save_checkpoint, get_model_and_preprocessing
+from my_utils import seed_everything, save_checkpoint, get_model_and_preprocessing, get_last_exp_number
 
 
 def fetch_scheduler(optimizer: torch.optim) -> torch.optim.lr_scheduler:
@@ -90,9 +91,6 @@ def train():
                 print(f"Early stop on epoch {epoch}")
                 break
 
-        # if epoch % 2 == 0:
-        print("current_early_stop_patience", current_early_stop_patience)
-
         if scheduler is not None:
             scheduler.step()
 
@@ -121,7 +119,23 @@ def draw_result(lst_iter, train_loss, val_loss, train_acc, val_acc):
 
 
 def get_train_valid_epoch(model):
-    # loss = smp.utils.losses.JaccardLoss()
+    loss = smp.utils.losses.JaccardLoss()
+    loss_name = "jaccard_loss"
+
+    # loss = smp.utils.losses.Focal_Loss()
+    # loss_name = "focal_loss"
+
+    # loss = focal_loss.FocalLoss()
+    # loss_name = "focal_loss"
+    # setattr(loss, '__name__', loss_name)
+
+    # loss = dice_loss.AsymLoss()
+    # loss_name = "AsymLoss"
+    # setattr(loss, '__name__', loss_name)
+
+    # loss = smp.utils.losses.CompoundLoss(coef1=0.75, coef2=0.25, weighted=weighted)
+    #
+
     # class_weights = [0.5, 0.5]
     # loss = losses.CrossentropyND(torch.FloatTensor(class_weights).cuda())
     # loss = losses.CrossentropyND()
@@ -133,8 +147,11 @@ def get_train_valid_epoch(model):
     # loss_name = "SSLoss"
     # setattr(loss, '__name__', loss_name)
 
-    loss_name = "bce_with_logits_loss"
-    loss = smp.utils.losses.BCEWithLogitsLoss()
+    # loss_name = "bce_with_logits_loss"
+    # loss = smp.utils.losses.BCEWithLogitsLoss()
+
+    # loss = smp.utils.losses.JaccardLoss()
+    # loss_name = "JaccardLoss"
 
     metrics = [smp.utils.metrics.IoU(threshold=0.4)]
     optimizer = torch.optim.Adam([dict(params=model.parameters(), lr=float(config.LEARNING_RATE))])
@@ -167,6 +184,7 @@ def get_train_valid_loaders(pretrain_prepocessing):
         augmentation=get_training_augmentation(),
         preprocessing=get_preprocessing(pretrain_prepocessing),
         classes=config.CLASSES,
+        all_classes=config.ALL_CLASSES
     )
 
     valid_dataset = DatasetWrapper(
@@ -175,26 +193,13 @@ def get_train_valid_loaders(pretrain_prepocessing):
         augmentation=get_validation_transformation(),
         preprocessing=get_preprocessing(pretrain_prepocessing),
         classes=config.CLASSES,
+        all_classes=config.ALL_CLASSES
     )
 
     train_loader = DataLoader(train_dataset, batch_size=int(config.BATCH_SIZE), shuffle=True, num_workers=0)
     valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, num_workers=0)
 
     return train_loader, valid_loader
-
-
-def get_last_exp_number(model_name):
-    folders = [x[0] for x in os.walk(os.path.join("logs", model_name))][1:]
-    folders = [x.split("/")[-1] for x in folders]
-    folders_exp = []
-    for f in folders:
-        if "exp" in f:
-            folders_exp.append(f)
-
-    if not folders_exp:
-        return 0
-    else:
-        return max([int(x.split("_")[1]) for x in folders_exp]) + 1
 
 
 if __name__ == '__main__':

@@ -8,6 +8,7 @@ def get_training_augmentation():
     train_transform = [
 
         A.HorizontalFlip(p=0.5),
+        # A.VerticalFlip(p=0.5),
         # A.ShiftScaleRotate(scale_limit=0.5, rotate_limit=0, shift_limit=0.1, p=1, border_mode=0),
 
         # A.RandomCrop(height=320, width=320, always_apply=True),
@@ -81,3 +82,4 @@ def get_preprocessing(preprocessing_fn):
         A.Lambda(image=to_tensor, mask=to_tensor),
     ]
     return A.Compose(_transform)
+

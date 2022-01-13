@@ -22,7 +22,8 @@ def visualize_dataset():
     dataset = DatasetWrapper(config.X_TRAIN_DIR,
                              config.Y_TRAIN_DIR,
                              augmentation=get_validation_transformation(),
-                             classes=[config.CLASSES[0]])
+                             classes=config.ALL_CLASSES,
+                             all_classes=config.ALL_CLASSES)
     for i in range(10):
         image, mask = dataset[i]  # get some sample
         visualize(image=image, mask=mask.squeeze())
@@ -33,7 +34,8 @@ def visualize_dataset_augmented():
         config.X_TRAIN_DIR,
         config.Y_TRAIN_DIR,
         augmentation=get_training_augmentation(),
-        classes=[config.CLASSES[0]]
+        classes=config.ALL_CLASSES,
+        all_classes=config.ALL_CLASSES
     )
 
     # same image with different random transforms

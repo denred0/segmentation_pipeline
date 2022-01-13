@@ -16,7 +16,7 @@ def train_val_test_split_one_class(input_dir: Path, output_dir_root: Path, val_f
                                    test_fraction: float) -> None:
     seed_everything(config.SEED)
 
-    images_paths = get_all_files_in_folder(input_dir.joinpath("images"), ["*" + config.IMAGE_EXTENSION_OUTPUT])
+    images_paths = get_all_files_in_folder(input_dir.joinpath("images"), ["*" + config.IMAGE_EXTENSION_INPUT])
     shuffle(images_paths)
 
     train_size, val_size, test_size = get_sizes_from_fraction(images_paths, val_fraction, test_fraction)
@@ -70,7 +70,7 @@ def analyze_split_proportion(data_dir: str) -> None:
     all_labels_dict = {}
 
     train_masks_paths = get_all_files_in_folder(Path(data_dir).joinpath("trainannot"),
-                                                ["*" + config.IMAGE_EXTENSION_OUTPUT])
+                                                ["*" + config.IMAGE_EXTENSION_INPUT])
     train_labels_dict = {}
     for train_mask_path in tqdm(train_masks_paths, desc="Analyze train"):
         mask = cv2.imread(str(train_mask_path), cv2.IMREAD_GRAYSCALE)
@@ -78,9 +78,11 @@ def analyze_split_proportion(data_dir: str) -> None:
         for label in np.unique(mask):
             train_labels_dict[label] = train_labels_dict.get(label, 0) + 1
             all_labels_dict[label] = all_labels_dict.get(label, 0) + 1
+            if label == 3:
+                print()
 
     val_masks_paths = get_all_files_in_folder(Path(data_dir).joinpath("valannot"),
-                                              ["*" + config.IMAGE_EXTENSION_OUTPUT])
+                                              ["*" + config.IMAGE_EXTENSION_INPUT])
     val_labels_dict = {}
     for val_mask_path in tqdm(val_masks_paths, desc="Analyze val"):
         mask = cv2.imread(str(val_mask_path), cv2.IMREAD_GRAYSCALE)
@@ -90,7 +92,7 @@ def analyze_split_proportion(data_dir: str) -> None:
             all_labels_dict[label] = all_labels_dict.get(label, 0) + 1
 
     test_masks_paths = get_all_files_in_folder(Path(data_dir).joinpath("testannot"),
-                                               ["*" + config.IMAGE_EXTENSION_OUTPUT])
+                                               ["*" + config.IMAGE_EXTENSION_INPUT])
     test_labels_dict = {}
     for test_mask_path in tqdm(test_masks_paths, desc="Analyze test"):
         mask = cv2.imread(str(test_mask_path), cv2.IMREAD_GRAYSCALE)
@@ -131,6 +133,6 @@ if __name__ == "__main__":
     else:
         output_dir = "data/train_val_test_split/output/train_val_test_split_one_class"
         recreate_folders(Path(output_dir), ["train", "trainannot", "val", "valannot", "test", "testannot"])
-        train_val_test_split_one_class(Path(input_dir), Path(output_dir), val_fraction=0.1, test_fraction=0.1)
+        train_val_test_split_one_class(Path(input_dir), Path(output_dir), val_fraction=0.15, test_fraction=0.1)
 
         analyze_split_proportion(output_dir)

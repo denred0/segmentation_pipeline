@@ -41,6 +41,12 @@ def recreate_folders(root_dir: Path, folders_list: List) -> None:
             shutil.rmtree(output_dir)
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
+def recreate_one_folder(directory: str) -> None:
+    output_dir = Path(directory)
+    if output_dir.exists() and output_dir.is_dir():
+        shutil.rmtree(output_dir)
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
 
 def get_model_and_preprocessing(mode: str, weights_path=""):
     model = smp.FPN(
@@ -62,8 +68,22 @@ def get_model_and_preprocessing(mode: str, weights_path=""):
 
 
 def load_checkpoint(model, weights_path: str):
+    # model = torch.load(weights_path)
     checkpoint = torch.load(weights_path)
     model.load_state_dict(checkpoint['model_state_dict'])
     model.to(config.DEVICE)
 
     return model
+
+def get_last_exp_number(model_name):
+    folders = [x[0] for x in os.walk(os.path.join("logs", model_name))][1:]
+    folders = [x.split("/")[-1] for x in folders]
+    folders_exp = []
+    for f in folders:
+        if "exp" in f:
+            folders_exp.append(f)
+
+    if not folders_exp:
+        return 0
+    else:
+        return max([int(x.split("_")[1]) for x in folders_exp]) + 1
