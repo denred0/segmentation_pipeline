@@ -39,7 +39,7 @@ def fetch_scheduler(optimizer: torch.optim) -> torch.optim.lr_scheduler:
 
 
 def create_and_get_experiment_path() -> str:
-    experiment_name = config.ARCH + "_" + config.ENCODER
+    experiment_name = config.ENCODER + "_" + config.ARCH
     experiment_number = get_last_exp_number(experiment_name)
 
     experiment_path = "logs" + os.sep + experiment_name + os.sep + "exp_" + str(experiment_number)
@@ -54,7 +54,7 @@ def train():
 
     experiment_path = create_and_get_experiment_path()
 
-    model, pretrain_prepocessing = get_model_and_preprocessing(mode="train")
+    model, pretrain_prepocessing = get_model_and_preprocessing(config.ARCH, mode="train")
 
     train_loader, valid_loader = get_train_valid_loaders(pretrain_prepocessing)
 
@@ -122,8 +122,8 @@ def get_train_valid_epoch(model):
     loss = smp.utils.losses.JaccardLoss()
     loss_name = "jaccard_loss"
 
-    # loss = smp.utils.losses.Focal_Loss()
-    # loss_name = "focal_loss"
+    # loss = smp.utils.losses.Focal_Loss(alpha=0.8)
+    # loss_name = "focal__loss"
 
     # loss = focal_loss.FocalLoss()
     # loss_name = "focal_loss"

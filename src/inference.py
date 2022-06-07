@@ -12,7 +12,7 @@ import config
 
 def inference_main(images_dir: Path, root_output_dir: Path, weights_path: str) -> None:
     recreate_folders(root_output_dir, ["images", "masks", "masks_rgb", "visualization", "with_confidence"])
-    model, pretrain_prepocessing = get_model_and_preprocessing(mode="eval", weights_path=weights_path)
+    model, pretrain_prepocessing = get_model_and_preprocessing(arch=config.ARCH, mode="eval", weights_path=weights_path)
     inference_images(images_dir, root_output_dir, model, pretrain_prepocessing)
 
 
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     images_dir = "data/train/test"
     # images_dir = "data/inference/input"
     root_output_dir = "data/inference/output"
-    weights_path = "logs/FPN_inceptionv4/exp_64/e7_loss_0.0952_iou_score_0.9094.pth"
+    weights_path = "logs/inceptionv4_Unet/exp_0/e21_loss_0.0964_iou_score_0.9049.pth"
 
     inference_main(Path(images_dir), Path(root_output_dir), weights_path)
 

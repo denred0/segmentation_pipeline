@@ -74,9 +74,12 @@ if __name__ == "__main__":
     for im in tqdm(source_images):
         image = cv2.imread(str(im), cv2.IMREAD_COLOR)
 
-        pts = np.array([(15, 20), (1910, 45), (1885, 670), (70, 1075)])
-        warped = four_point_transform(image, pts)
+        pts_1920_1080 = np.array([(15, 20), (1910, 45), (1885, 670), (70, 1075)])
+        pts_2560_1440 = np.array([(15, 160), (2545, 90), (2515, 870), (85, 1390)])
 
+        pts = pts_2560_1440
+
+        warped = four_point_transform(image, pts)
         warped = cv2.resize(warped, (1920, 1080))
 
         cv2.imwrite(str(output_dir.joinpath(im.name)), warped)

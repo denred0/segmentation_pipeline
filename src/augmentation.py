@@ -6,7 +6,7 @@ import config
 
 def get_training_augmentation():
     train_transform = [
-
+        # A.ToGray(p=1),
         A.HorizontalFlip(p=0.5),
         # A.VerticalFlip(p=0.5),
         # A.ShiftScaleRotate(scale_limit=0.5, rotate_limit=0, shift_limit=0.1, p=1, border_mode=0),

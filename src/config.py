@@ -2,8 +2,8 @@ import torch
 import seaborn as sns
 import numpy as np
 
-ALL_CLASSES = ['unlabelled', 'smoke', 'spotlight']
-CLASSES = ['unlabelled', 'smoke', 'spotlight']
+ALL_CLASSES = ['unlabelled', 'smoke']
+CLASSES = ['unlabelled', 'smoke']
 
 CLASS_INDEXES = [index for index, value in enumerate(ALL_CLASSES)]
 
@@ -35,8 +35,10 @@ IMAGE_EXTENSION_OUTPUT = ".png"
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
+# ENCODER_LIST = [""]
 ENCODER = "inceptionv4"  # "se_resnext101_32x4d"  # "se_resnext101_32x4d"
-ARCH = "FPN"
+ARCH_LIST = ["Unet", "UnetPlusPlus", "MAnet", "Linknet", "FPN", "PSPNet", "DeepLabV3", "DeepLabV3Plus", "PAN"]
+ARCH = "Unet"
 ENCODER_WEIGHTS = 'imagenet+background'
 ACTIVATION = "sigmoid"  # "softmax2d"  # "softmax2d"#"sigmoid"
 

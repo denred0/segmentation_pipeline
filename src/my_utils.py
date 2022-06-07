@@ -41,6 +41,7 @@ def recreate_folders(root_dir: Path, folders_list: List) -> None:
             shutil.rmtree(output_dir)
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
+
 def recreate_one_folder(directory: str) -> None:
     output_dir = Path(directory)
     if output_dir.exists() and output_dir.is_dir():
@@ -48,13 +49,35 @@ def recreate_one_folder(directory: str) -> None:
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
 
-def get_model_and_preprocessing(mode: str, weights_path=""):
-    model = smp.FPN(
-        encoder_name=config.ENCODER,
-        encoder_weights=config.ENCODER_WEIGHTS,
-        classes=len(config.CLASSES),
-        activation=config.ACTIVATION,
-    )
+def get_model_and_preprocessing(arch: str, mode: str, weights_path=""):
+    if arch == "FPN":
+        model = smp.FPN(
+            encoder_name=config.ENCODER,
+            encoder_weights=config.ENCODER_WEIGHTS,
+            classes=len(config.CLASSES),
+            activation=config.ACTIVATION,
+        )
+    elif arch == "PAN":
+        model = smp.PAN(
+            encoder_name=config.ENCODER,
+            encoder_weights=config.ENCODER_WEIGHTS,
+            classes=len(config.CLASSES),
+            activation=config.ACTIVATION,
+        )
+    elif arch == "PSPNet":
+        model = smp.PSPNet(
+            encoder_name=config.ENCODER,
+            encoder_weights=config.ENCODER_WEIGHTS,
+            classes=len(config.CLASSES),
+            activation=config.ACTIVATION,
+        )
+    elif arch == "Unet":
+        model = smp.Unet(
+            encoder_name=config.ENCODER,
+            encoder_weights=config.ENCODER_WEIGHTS,
+            classes=len(config.CLASSES),
+            activation=config.ACTIVATION,
+        )
 
     preprocessing_fn = smp.encoders.get_preprocessing_fn(config.ENCODER, config.ENCODER_WEIGHTS)
 
@@ -74,6 +97,7 @@ def load_checkpoint(model, weights_path: str):
     model.to(config.DEVICE)
 
     return model
+
 
 def get_last_exp_number(model_name):
     folders = [x[0] for x in os.walk(os.path.join("logs", model_name))][1:]
